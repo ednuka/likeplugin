@@ -2,41 +2,37 @@
 /*
   Plugin Name: Like Plugin
   Plugin URI: http://localhost/wordpresss
-  Description: Wordpress bir site için yazılmış içerik beğeni eklentisidir.
+  Description: Wordpress bir site iÃ§in yazÃ½lmÃ½Ã¾ iÃ§erik beÃ°eni eklentisidir.
   Version: Versiyon (0.1 gibi)
   Author: Edibe Nur Karayel
   License: GNU
  */
 
-/* Widget Eylemi Tanımlanır */
+/* Widget Eylemi Tanimlanir */
 add_action('widgets_init', 'like_widgets');
 
 /* Widget Eylem Fonksiyonu */
-
 function like_widgets() {
     register_widget('like_widget');
 }
 
-/* Widget Sınıfı */
-
+/* Widget Sinifi */
 class like_widget extends WP_Widget {
-    /* Widget Başlığı oluşturulur.
-      oluşturulan değerler WP_Widget metotuna gönderilir.
+    /* Widget basligi olusturulur.
+      olusturulan degerler WP_Widget metotuna gÃ¶nderilir.
      */
 
     public function __construct() {
-        $widget_options = array('description' => 'Bu Like listesinin en üst 10 öğesini gösteren bir widgettir'); //Widget Açıklaması
+        $widget_options = array('description' => 'Bu Like listesinin en Ã¼st 10 Ã¶Ã°esini gÃ¶steren bir widgettir'); //Widget AÃ§Ã½klamasÃ½
         parent::WP_Widget(false, 'Like Widget', $widget_options);
     }
 
     /* gelen yeni form verileri update edilir. */
-
     public function update($new, $old) {
         return $new;
     }
 
-    /* Admin arayüzündeki widget formu oluşturulur. */
-
+    /* Admin arayÃ¼zÃ¼ndeki widget formu olusturulur. */
     public function form($instance) {
         if (!isset($instance['text']))
             $text = "";
@@ -49,13 +45,12 @@ class like_widget extends WP_Widget {
         echo '</p>';
     }
 
-    /* Widget'ın arayüzde görünüm kısmı belirlenir. */
-
+    /* Widget'in arayÃ¼zde gÃ¶rÃ¼nÃ¼m kismi belirlenir. */
     public function widget($args, $instance) {
         global $wpdb;
         $table_posts = $wpdb->prefix . "posts";
-        $likes = post_like_cek(); //Her bir post'un id-başlık-beğeni bilgileri dizi olarak döner
-        $likes = sirala($likes);  //Dizi  beğeni sayılarına göre büyükten küçüğe sıralı olarak döner
+        $likes = post_like_cek(); //Her bir post'un id-baÃ¾lÃ½k-beÃ°eni bilgileri dizi olarak dÃ¶ner
+        $likes = sirala($likes);  //Dizi  beÃ°eni sayÃ½larÃ½na gÃ¶re bÃ¼yÃ¼kten kÃ¼Ã§Ã¼Ã°e sÃ½ralÃ½ olarak dÃ¶ner
 
         $title = apply_filters('widget_title', $instance['title']);
         $blog_title = get_bloginfo('name');
@@ -84,7 +79,7 @@ class like_widget extends WP_Widget {
 
 }
 
-/* Direkt Çağrıları Engelleme */
+/* Direkt Ã‡agrilari Engelleme */
 if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
     die('You are not allowed to call this page directly.');
 }
@@ -92,7 +87,7 @@ if (preg_match('#' . basename(__FILE__) . '#', $_SERVER['PHP_SELF'])) {
 
 register_activation_hook(__FILE__, 'like_install');
 
-/* Eklenti yüklendiğinde gerekli tabloları oluşturacak fonksiyon */
+/* Eklenti yÃ¼klendiginde gerekli tablolari olusturacak fonksiyon */
 
 function like_install() {
     global $wpdb;
@@ -112,16 +107,16 @@ function like_install() {
 
 function like_form() {
 
-    $id = get_the_ID(); //ilgili content'in id sini alır
+    $id = get_the_ID(); //ilgili content'in id sini alir
     if (isset($_POST['gizli'])) {
 
         global $wpdb;
         $table_name = $wpdb->prefix . "likes";
 
-        /* wp_likes tablosundan post_id'si ilgili contentin id'sine eşit olan satırı çeker */
+        /* wp_likes tablosundan post_id'si ilgili contentin id'sine esit olan satiri ceker */
         $myrows = $wpdb->get_row("SELECT * FROM $table_name WHERE post_id=$id ");
 
-        /* wp_likes tablosunda ilgili post için bir satır var ise begen kolonunun değeri 1 arttırılır */
+        /* wp_likes tablosunda ilgili post iÃ§in bir satÃ½r var ise begen kolonunun deÃ°eri 1 arttirilir */
         if ($myrows) {
             $begen = $myrows->begen;
             $begen++;
@@ -131,8 +126,8 @@ function like_form() {
                     ), array('post_id' => $id,)
             );
         } else {
-            /* wp_likes tablosunda ilgili post için bir satır yok ise(ilk kez beğeniliyor ise) oluşturulur. Begen kolonuna 1 değeri verilir. */
-
+            /* wp_likes tablosunda ilgili post iÃ§in bir satir yok ise(ilk kez begeniliyor ise) oluÃ¾turulur. 
+	    Begen kolonuna 1 degeri verilir. */
             $wpdb->insert(
                     $table_name, array(
                 'post_id' => $id,
@@ -150,31 +145,29 @@ function like_form() {
     return $form;
 }
 
-/* Her content için çağırılacak fonksiyon */
-
+/* Her content iÃ§in Ã§agirilacak fonksiyon */
 function like_btn($content) {
 
     if (is_single()) {
 
         $buton = like_form();
-        $content .= $buton; //like_form() fonksiyonundan dönen "like butonu formu"nu content'in sonuna ekledik.
+        $content .= $buton; //like_form() fonksiyonundan dÃ¶nen "like butonu formu"nu content'in sonuna ekledik.
     }
     return $content;
 }
 
-/* Her content için like_btn fonksiyonu çağırılacak */
+/* Her content iÃ§in like_btn fonksiyonu Ã§agirilacak */
 add_filter('the_content', 'like_btn');
 
-/* Admin Alanı İçin Beğeni İstatistik Sayfasını oluşturacağız. */
+/* Admin alani icin Begeni istatistik sayfasini olusturacagiz. */
 add_action('admin_menu', 'begeni_istatistik');
 
-/* Beğeni istatistik sayfasının menünün neresine ekleneceğini ve adını belirtiyoruz */
-
+/* Begeni istatistik sayfasinin menÃ¼nÃ¼n neresine eklenecegini ve adini belirtiyoruz */
 function begeni_istatistik() {
     add_options_page('Like Statistic ', 'Like Statistik', '8', 'like statistic', 'istatistik_fonks');
 }
 
-/* Verilen Bir id-tag-like dizisini beğeni sayısına göre büyükten küçüğe sıralayan fonksiyon */
+/* Verilen Bir id-tag-like dizisini beÃ°eni sayisina gÃ¶re bÃ¼yÃ¼kten kÃ¼Ã§Ã¼Ã°e siralayan fonksiyon */
 
 function sirala($dizi) {
 
@@ -198,8 +191,7 @@ function sirala($dizi) {
     return $dizi;
 }
 
-/* Yayında olan tüm post'ların id-tag-like  bilgileri dizi olarak döndüren fonksiyon */
-
+/* Yayinda olan tÃ¼m post'larin id-tag-like  bilgileri dizi olarak dÃ¶ndÃ¼ren fonksiyon */
 function post_like_cek() {
     global $wpdb;
     $tablo = "";
@@ -230,20 +222,19 @@ function post_like_cek() {
     return $dizi;
 }
 
-/* Ayarlar->Like Statistics Seçeneğine tıklandığında çalışacak fonksiyondur */
-
+/* Ayarlar->Like Statistics SeÃ§enegine tiklandiginda Ã§agirilacak fonksiyondur */
 function istatistik_fonks() {
-    $likes = post_like_cek(); //Her bir post'un id-başlık-beğeni bilgileri dizi olarak döner
-    $likes = sirala($likes);  //Dizi  beğeni sayılarına göre büyükten küçüğe sıralı olarak döner
+    $likes = post_like_cek(); //Her bir post'un id-baÃ¾lÃ½k-beÃ°eni bilgileri dizi olarak dÃ¶ner
+    $likes = sirala($likes);  //Dizi  begeni sayilarina gÃ¶re bÃ¼yÃ¼kten kÃ¼Ã§Ã¼ge sirali olarak dÃ¶ner
 
-    /* Sayfalama için gerekli işlemler */
-    $sayfa;         //Bulunulan sayfa sayısı
-    $limit = 10;    //Her bir sayfada gösterilecek tag-like satır sayısı
+    /* Sayfalama iÃ§in gerekli islemler */
+    $sayfa;         //Bulunulan sayfa sayisi
+    $limit = 10;    //Her bir sayfada gÃ¶sterilecek tag-like satÃ½r sayisi
     if (empty($sayfa) || !is_numeric($sayfa)) {
         $sayfa = 1;
     }
     if ($_POST['gizli']) {
-        $sayfa = $_POST['sayfa'];   //Formdan gelen sayfa numarasını sayfa değişkenine atar
+        $sayfa = $_POST['sayfa'];   //Formdan gelen sayfa numarasinisayfa degiskenine atar
     }
     $kayit_sayisi = $likes['count'];
     $sayfa_sayisi = ceil($kayit_sayisi / $limit);
@@ -271,7 +262,7 @@ function istatistik_fonks() {
 
 
         <?php
-        /* Sayfa Numaraları Butonlarını Gösteren Form */
+        /* Sayfa Numaralari Butonlarini GÃ¶steren Form */
         echo "<form name='likeform' method='post' action=''>"
         . "<h2><label >Sayfalar</label></h2>";
         for ($sf = 1; $sf <= $sayfa_sayisi; $sf++)
